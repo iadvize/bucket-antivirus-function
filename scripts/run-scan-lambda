@@ -49,4 +49,5 @@ docker run --rm \
   --memory-swap="${MEM}" \
   --cpus="${CPUS}" \
   --name="${NAME}" \
-  lambci/lambda:python3.7 scan.lambda_handler "${EVENT}"
+  -p 9000:8080 \
+  amazon/aws-lambda-python:3.11 scan.lambda_handler

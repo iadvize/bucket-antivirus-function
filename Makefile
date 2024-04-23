@@ -37,8 +37,11 @@ archive: clean  ## Create the archive for AWS lambda
 	docker build -t bucket-antivirus-function:latest .
 	mkdir -p ./build/
 	docker run --platform linux/amd64 -v $(current_dir)/build:/opt/mount --rm --entrypoint cp bucket-antivirus-function:latest /opt/app/build/lambda.zip /opt/mount/lambda.zip
-	AWS_DEFAULT_PROFILE=dev aws s3 cp build/lambda.zip s3://idz-dev-lambdas/antivirus-update/main.zip
-	AWS_DEFAULT_PROFILE=prod aws s3 cp build/lambda.zip s3://idz-prod-lambdas/antivirus-update/main.zip
+
+.PHONY: push
+push: archive
+ 	AWS_DEFAULT_PROFILE=dev aws s3 cp build/lambda.zip s3://idz-dev-lambdas/antivirus-update/main.zip
+ 	AWS_DEFAULT_PROFILE=prod aws s3 cp build/lambda.zip s3://idz-prod-lambdas/antivirus-update/main.zip
 
 .PHONY: pre_commit_install  ## Ensure that pre-commit hook is installed and kept up to date
 pre_commit_install: .git/hooks/pre-commit ## Ensure pre-commit is installed
@@ -60,9 +63,9 @@ coverage: clean  ## Run python tests with coverage
 	nosetests --with-coverage
 
 .PHONY: scan
-scan: build ## Run scan function locally
+scan: ./build/lambda.zip ## Run scan function locally
 	scripts/run-scan-lambda $(TEST_BUCKET) $(TEST_KEY)
 
 .PHONY: update
-update: build ## Run update function locally
+update: ./build/lambda.zip ## Run update function locally
 	scripts/run-update-lambda

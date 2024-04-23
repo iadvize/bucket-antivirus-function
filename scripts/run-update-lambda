@@ -26,4 +26,5 @@ docker run --rm \
   --memory-swap="${MEM}" \
   --cpus="${CPUS}" \
   --name="${NAME}" \
-  lambci/lambda:python3.7 update.lambda_handler
+  -p 9000:8080 \
+  amazon/aws-lambda-python:3.11 update.lambda_handler
